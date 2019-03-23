@@ -1,0 +1,14 @@
+AAL	American Airlines
+DAL	Delta Airlines
+HA	Hawaiian Airlines
+LUV	Southwest Airlines
+UAL	United Airlines
+
+HLT	Hilton Hotels
+H	Hyatt Hotels
+HST	Host Hotel & Resorts
+MAR	Marriott International
+WH	Wyndham
+
+HTZ	Hertz Car Rental
+CAR	Avis Budget

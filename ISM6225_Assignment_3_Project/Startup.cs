@@ -50,7 +50,7 @@ namespace ISM6225_Assignment_3_Project
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            //app.UseCookiePolicy();
 
             app.UseMvc(routes =>
             {
