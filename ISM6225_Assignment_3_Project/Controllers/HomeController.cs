@@ -4,13 +4,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using ISM6225_Assignment_3_Project.Models;
+
 // added libaries
 using System.Text;
 
 // Libaries for API's
 using System.Net.Http;
 using Newtonsoft.Json;
+
+// using my model
+using ISM6225_Assignment_3_Project.Models;
 
 namespace ISM6225_Assignment_3_Project.Controllers
 {
@@ -54,19 +57,19 @@ namespace ISM6225_Assignment_3_Project.Controllers
             const string IEXTrading_API_PATH = iex_url + "ref-data/symbols";
             string companyList = "";
 
-            http_client.BaseAddress = new Uri(IEXTrading_API_PATH);
-            HttpResponseMessage http_response = http_client.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+                http_client.BaseAddress = new Uri(IEXTrading_API_PATH);
+                HttpResponseMessage http_response = http_client.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
 
-            if (http_response.IsSuccessStatusCode)
-            {
-                companyList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-            }
+                if (http_response.IsSuccessStatusCode)
+                {
+                    companyList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                }
 
-            if (!companyList.Equals(""))
-            {
-                iex_api_companies = JsonConvert.DeserializeObject<List<iex_api_Company>>(companyList);
-                iex_api_companies = iex_api_companies.Where(predefinedQuery).ToList();
-            }
+                if (!companyList.Equals(""))
+                {
+                    iex_api_companies = JsonConvert.DeserializeObject<List<iex_api_Company>>(companyList);
+                    iex_api_companies = iex_api_companies.Where(predefinedQuery).ToList();
+                }
         }
 
 
@@ -103,11 +106,33 @@ namespace ISM6225_Assignment_3_Project.Controllers
             }
         }
 
+        // -------------------------------------------------------------------
+        // pricing data
+        // -------------------------------------------------------------------
+        private void getPricing(string stockSymbol)
+        {
+            string IEXTrading_API_PATH = iex_url + "stock/" + stockSymbol + "/batch?types=chart&range=1y";
+            string priceList = "";
+            // hold pricing data
+            List<iex_api_pricing> Prices = new List<iex_api_pricing>();
+            http_client.BaseAddress = new Uri(IEXTrading_API_PATH);
+
+            // get pricing data from the API
+            HttpResponseMessage http_response = http_client.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+            if(http_response.IsSuccessStatusCode)
+            {
+                priceList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                ViewBag.priceList = priceList;
+            }
+        }
+
 
         // -------------------------------------------------------------------
         // web pages
         // -------------------------------------------------------------------
-        public IActionResult Index(string symbol)
+        public IActionResult Index(string getSymbol)
         {
             // prep the HttpClient, set it to accept a JSON response 
             PrepHttpClient();
@@ -120,12 +145,13 @@ namespace ISM6225_Assignment_3_Project.Controllers
             iex_GetSymbols();
 
             // format the drop down box 
-            iex_FormatSymbols(symbol);
+            iex_FormatSymbols(getSymbol);
 
-
-            if(symbol != null)
+            // switch if the symbol was posted
+            if(getSymbol != null)
             {
-
+                PrepHttpClient();
+                getPricing(getSymbol);
             }
 
             // return the companies info
