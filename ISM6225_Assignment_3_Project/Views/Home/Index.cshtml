@@ -8,26 +8,15 @@
             -------------------------------------------------------------- -->
             <div class="six columns stockpicker">
                 <div class="dropdown">
-                    <button class="dropbtn">
-                        Dropdown <img src="~/images/down_t.png" />
-                    </button>
-                    <div class="dropdown-content">
                         <form asp-controller="Home" asp-action="Index" method="get">
                             <select name="symbol">
                                 @foreach (var stock in Model)
                                 {
-                                    <option value=stock.symbol>@stock.name</option>
+                                    @Html.Raw(stock.userOption)
                                 }
                             </select>
-
+                            <input type="submit" value="select stock"/>
                         </form>
-                        @foreach (var stock in Model)
-                        {
-                            <a asp-area="" asp-controller="Home" asp-action="Index">
-                                @Html.DisplayFor(modelItem => stock.name)
-                            </a>
-                        }
-                    </div>
                 </div>
             </div>
             <!-- Currency Picker

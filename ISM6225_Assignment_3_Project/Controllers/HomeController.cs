@@ -82,7 +82,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
         }
 
 
-        private void iex_FormatSymbols()
+        private void iex_FormatSymbols(string stockSymbol)
         {
 
             //
@@ -90,6 +90,16 @@ namespace ISM6225_Assignment_3_Project.Controllers
             {
                 string str = $"{iex_api_companies[counter].symbol} | {iex_api_companies[counter].name}\n";
                 iex_api_companies[counter].name = str;
+
+                if (stockSymbol == iex_api_companies[counter].symbol)
+                {
+                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" selected>{iex_api_companies[counter].name} </ option >";
+                }
+                else
+                {
+                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" >{iex_api_companies[counter].name} </ option >";
+                }
+                iex_api_companies[counter].userOption = str;
             }
         }
 
@@ -97,18 +107,26 @@ namespace ISM6225_Assignment_3_Project.Controllers
         // -------------------------------------------------------------------
         // web pages
         // -------------------------------------------------------------------
-        public IActionResult Index()
+        public IActionResult Index(string symbol)
         {
             // prep the HttpClient, set it to accept a JSON response 
             PrepHttpClient();
 
             //ViewBag.dbSuccessComp = 0;
+            List<iex_api_pricing> stockPrices = new List<iex_api_pricing>();
 
             // rest API call to IEX; 
             // store the values in a custom model iex_api_company
             iex_GetSymbols();
 
-            iex_FormatSymbols();
+            // format the drop down box 
+            iex_FormatSymbols(symbol);
+
+
+            if(symbol != null)
+            {
+
+            }
 
             // return the companies info
             return View(iex_api_companies);

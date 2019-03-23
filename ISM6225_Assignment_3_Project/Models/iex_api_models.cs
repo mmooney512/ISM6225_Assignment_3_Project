@@ -15,6 +15,7 @@ namespace ISM6225_Assignment_3_Project.Models
         public bool isEnabled { get; set; }
         public string type { get; set; }
         public string iexId { get; set; }
+        public string userOption { get; set; }
         public List<iex_api_pricing> pricingData { get; set; }
     }
 
