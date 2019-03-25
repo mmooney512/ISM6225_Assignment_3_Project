@@ -109,7 +109,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
         // -------------------------------------------------------------------
         // pricing data
         // -------------------------------------------------------------------
-        private void getPricing(string stockSymbol)
+        private List<iex_api_pricing> getPricing(string stockSymbol)
         {
             string IEXTrading_API_PATH = iex_url + "stock/" + stockSymbol + "/batch?types=chart&range=1y";
             string priceList = "";
@@ -123,11 +123,33 @@ namespace ISM6225_Assignment_3_Project.Controllers
             if(http_response.IsSuccessStatusCode)
             {
                 priceList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-
-                ViewBag.priceList = priceList;
             }
+
+            // if the priceList is not empty 
+            if(!priceList.Equals(""))
+            {
+                iex_symbol_prices root = JsonConvert.DeserializeObject<iex_symbol_prices>(priceList
+                    , new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    });
+                Prices = root.chart.ToList();
+            }
+
+            ViewBag.stockChart = iex_FormatPricing(Prices);
+            return (Prices);
         }
 
+
+        public iex_api_chart_Stock_Prices iex_FormatPricing(List<iex_api_pricing> Prices)
+        {
+            iex_api_chart_Stock_Prices chartData = new iex_api_chart_Stock_Prices();
+
+            chartData.PriceClosing = string.Join(",", Prices.Select(stock => stock.close));
+            chartData.Dates = string.Join(",", Prices.Select(stock => stock.date));
+
+            return chartData;
+        }
 
         // -------------------------------------------------------------------
         // web pages
@@ -151,14 +173,15 @@ namespace ISM6225_Assignment_3_Project.Controllers
             if(getSymbol != null)
             {
                 PrepHttpClient();
-                getPricing(getSymbol);
+                // go get the pricing of the speciefed symbol
+                stockPrices = getPricing(getSymbol);
+                
             }
 
             // return the companies info
             return View(iex_api_companies);
             //return View();
         }
-
 
 
         public IActionResult About()

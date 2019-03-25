@@ -19,7 +19,8 @@
                     </form>
                 </div>
 
-                @Html.Raw(@ViewBag.priceList)
+                @Html.Raw(ViewBag.stockChart.Dates)
+                @Html.Raw(ViewBag.stockChart.PriceClosing)
 
             </div>
             <!-- Currency Picker
