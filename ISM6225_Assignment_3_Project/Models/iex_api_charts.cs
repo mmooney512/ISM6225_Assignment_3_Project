@@ -7,8 +7,9 @@ namespace ISM6225_Assignment_3_Project.Models
 {
     public class iex_api_chart_Stock_Prices
     {
+        public string Symbol { get; set; }
+        public string CompanyName { get; set; }
         public string Dates { get; set; }
         public string PriceClosing { get; set; }
-
     }
 }

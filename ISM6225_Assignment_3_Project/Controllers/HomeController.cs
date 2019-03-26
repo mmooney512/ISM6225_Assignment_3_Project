@@ -91,8 +91,9 @@ namespace ISM6225_Assignment_3_Project.Controllers
             //
             for(int counter=0; counter < iex_api_companies.Count; counter++)
             {
-                string str = $"{iex_api_companies[counter].symbol} | {iex_api_companies[counter].name}\n";
-                iex_api_companies[counter].name = str;
+                string str = $"{iex_api_companies[counter].symbol} | {iex_api_companies[counter].name}";
+                iex_api_companies[counter].name = str +"\n";
+                iex_api_companies[counter].name_chart = str;
 
                 if (stockSymbol == iex_api_companies[counter].symbol)
                 {
@@ -111,7 +112,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
         // -------------------------------------------------------------------
         private List<iex_api_pricing> getPricing(string stockSymbol)
         {
-            string IEXTrading_API_PATH = iex_url + "stock/" + stockSymbol + "/batch?types=chart&range=1y";
+            string IEXTrading_API_PATH = iex_url + "stock/" + stockSymbol + "/batch?types=chart&range=3m";
             string priceList = "";
             // hold pricing data
             List<iex_api_pricing> Prices = new List<iex_api_pricing>();
@@ -136,17 +137,24 @@ namespace ISM6225_Assignment_3_Project.Controllers
                 Prices = root.chart.ToList();
             }
 
-            ViewBag.stockChart = iex_FormatPricing(Prices);
+            ViewBag.stockChart = iex_FormatPricing(stockSymbol, Prices);
             return (Prices);
         }
 
 
-        public iex_api_chart_Stock_Prices iex_FormatPricing(List<iex_api_pricing> Prices)
+        public iex_api_chart_Stock_Prices iex_FormatPricing(string stockSymbol, List<iex_api_pricing> Prices)
         {
-            iex_api_chart_Stock_Prices chartData = new iex_api_chart_Stock_Prices();
+            
+            iex_api_Company iac = new iex_api_Company();
+            iac = iex_api_companies.Where(stock => stock.symbol == stockSymbol).First();
 
-            chartData.PriceClosing = string.Join(",", Prices.Select(stock => stock.close));
-            chartData.Dates = string.Join(",", Prices.Select(stock => stock.date));
+            iex_api_chart_Stock_Prices chartData = new iex_api_chart_Stock_Prices
+            {
+                Symbol = stockSymbol
+                , CompanyName = iac.name_chart
+                , PriceClosing = string.Join(",", Prices.Select(stock => stock.close))
+                , Dates = string.Join(",", Prices.Select(stock => stock.date))
+            };
 
             return chartData;
         }
@@ -169,20 +177,37 @@ namespace ISM6225_Assignment_3_Project.Controllers
             // format the drop down box 
             iex_FormatSymbols(getSymbol);
 
-            // switch if the symbol was posted
-            if(getSymbol != null)
-            {
-                PrepHttpClient();
-                // go get the pricing of the speciefed symbol
-                stockPrices = getPricing(getSymbol);
-                
-            }
-
             // return the companies info
             return View(iex_api_companies);
             //return View();
         }
 
+        public IActionResult Stocks(string getSymbol)
+        {
+            // prep the HttpClient, set it to accept a JSON response 
+            PrepHttpClient();
+
+            //ViewBag.dbSuccessComp = 0;
+            List<iex_api_pricing> stockPrices = new List<iex_api_pricing>();
+
+            // rest API call to IEX; 
+            // store the values in a custom model iex_api_company
+            iex_GetSymbols();
+
+            // format the drop down box 
+            iex_FormatSymbols(getSymbol);
+
+            // switch if the symbol was posted
+            if (getSymbol != null)
+            {
+                PrepHttpClient();
+                // go get the pricing of the speciefed symbol
+                stockPrices = getPricing(getSymbol);
+
+            }
+
+            return View(iex_api_companies);
+        }
 
         public IActionResult About()
         {
