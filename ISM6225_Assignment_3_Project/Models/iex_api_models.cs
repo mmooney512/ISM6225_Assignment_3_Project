@@ -22,6 +22,8 @@ namespace ISM6225_Assignment_3_Project.Models
 
     public class iex_api_pricing
     {
+        [Key]
+        public string symbol { get; set; }
         public int EquityId { get; set; }
         public string date { get; set; }
         public float open { get; set; }
@@ -35,7 +37,7 @@ namespace ISM6225_Assignment_3_Project.Models
         public float vwap { get; set; }
         public string label { get; set; }
         public float changeOverTime { get; set; }
-        public string symbol { get; set; }
+        
     }
 
     public class iex_symbol_prices

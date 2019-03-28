@@ -7,8 +7,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+// add file for database access
+using ISM6225_Assignment_3_Project.DataAccess;
+
 
 namespace ISM6225_Assignment_3_Project
 {
@@ -31,6 +36,9 @@ namespace ISM6225_Assignment_3_Project
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            // set up the datbase connection
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration["Data:AJM_Stocks:ConnectionString"]));
+
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -47,6 +55,13 @@ namespace ISM6225_Assignment_3_Project
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                context.Database.EnsureCreated();
+            }
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

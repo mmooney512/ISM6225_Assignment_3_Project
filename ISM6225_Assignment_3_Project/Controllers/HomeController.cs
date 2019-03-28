@@ -12,6 +12,9 @@ using System.Text;
 using System.Net.Http;
 using Newtonsoft.Json;
 
+// database connection
+using ISM6225_Assignment_3_Project.DataAccess;
+
 // using my model
 using ISM6225_Assignment_3_Project.Models;
 
@@ -21,6 +24,9 @@ namespace ISM6225_Assignment_3_Project.Controllers
     {
         // HttpClient to send api requests
         HttpClient http_client;
+
+        // database connection object
+        public ApplicationDbContext dbContext;
 
         // iex API Variables
         const string iex_url = "https://api.iextrading.com/1.0/";
@@ -45,12 +51,20 @@ namespace ISM6225_Assignment_3_Project.Controllers
             ,"CAR"  //  Avis Budget
         };
 
+
+        public HomeController(ApplicationDbContext context)
+        {
+            dbContext = context;
+        }
+
+
         private void PrepHttpClient()
         {
             http_client = new HttpClient();
             http_client.DefaultRequestHeaders.Accept.Clear();
             http_client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
+
 
         private void iex_GetSymbols()
         {
@@ -169,6 +183,9 @@ namespace ISM6225_Assignment_3_Project.Controllers
 
             //ViewBag.dbSuccessComp = 0;
             List<iex_api_pricing> stockPrices = new List<iex_api_pricing>();
+
+
+            var db_all_Companies = dbContext.db_companies.ToList();
 
             // rest API call to IEX; 
             // store the values in a custom model iex_api_company
