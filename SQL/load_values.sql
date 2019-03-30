@@ -21,3 +21,12 @@ VALUES
 UPDATE [dbo].[db_companies]
 SET isEnabled = 1;
 
+
+TRUNCATE TABLE dbo.db_fx;
+INSERT INTO dbo.db_fx
+([date] ,USD, GBP ,EUR, JPY)
+values
+('2000-01-01' , 1, 1, 1, 1)
+;
+
+

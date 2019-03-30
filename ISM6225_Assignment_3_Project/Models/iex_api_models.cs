@@ -40,6 +40,9 @@ namespace ISM6225_Assignment_3_Project.Models
         public int EquityId { get; set; }
     }
 
+
+
+
     public class iex_symbol_prices
     {
         public iex_api_pricing[] chart { get; set; }

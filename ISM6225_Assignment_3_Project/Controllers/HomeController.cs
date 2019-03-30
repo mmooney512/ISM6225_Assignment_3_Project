@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 // added libaries
 using System.Text;
+using System.Text.RegularExpressions;
 
 // Libaries for API's
 using System.Net.Http;
@@ -50,6 +51,9 @@ namespace ISM6225_Assignment_3_Project.Controllers
             ,"HTZ"  //  Hertz Car Rental
             ,"CAR"  //  Avis Budget
         };
+
+        // list of currencies to look up
+        fxModel CurrencyList = new fxModel();
 
 
         public HomeController(ApplicationDbContext context)
@@ -109,13 +113,122 @@ namespace ISM6225_Assignment_3_Project.Controllers
 
                 if (stockSymbol == iex_api_companies[counter].symbol)
                 {
-                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" selected>{str} </ option >";
+                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" selected>{str}</ option >";
                 }
                 else
                 {
-                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" >{str} </ option >";
+                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" >{str}</ option >";
                 }
                 iex_api_companies[counter].userOption = str;
+            }
+        }
+
+        // -------------------------------------------------------------------
+        // fx data
+        // -------------------------------------------------------------------
+        private void getFxData()
+        {
+            string ExchangeRates_API_PATH = "https://api.exchangeratesapi.io/history?base=USD&symbols=USD,GBP,EUR,JPY";
+            DateTime isToday = DateTime.Today;
+            string date_start   = $"&start_at={isToday.AddDays(-45).ToString("yyyy-MM-dd")}";
+            string date_end     = $"&end_at={isToday.ToString("yyyy-MM-dd")}";
+            string maxDateTime  = "2001-01-01";
+            string fxList = "";
+            List<fx_api_Rates> fx_Rates = new List<fx_api_Rates>();
+            ExchangeRates_API_PATH = $"{ExchangeRates_API_PATH}{date_start}{date_end}";
+            
+
+            // run the query to get historical rates
+            fx_Rates = getHistoricalRates();
+
+            // check if in query results we have today's data
+            // if not then go get it from the API
+            Boolean getFxRatesFromAPI = true;
+            
+
+            if(fx_Rates != null && fx_Rates.Count > 2)
+            {
+                maxDateTime = fx_Rates.Last().date;
+                if(Convert.ToDateTime(maxDateTime) >= isToday )
+                {
+                    getFxRatesFromAPI = false;
+                }
+            }
+
+
+            if (getFxRatesFromAPI == true)
+            {
+                http_client.BaseAddress = new Uri(ExchangeRates_API_PATH);
+                // get pricing data from the API
+                HttpResponseMessage http_response = http_client.GetAsync(ExchangeRates_API_PATH).GetAwaiter().GetResult();
+                if (http_response.IsSuccessStatusCode)
+                {
+                    fxList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                }
+
+                // if the fxList is not empty 
+                if (!fxList.Equals(""))
+                {
+                    //fix json error
+                    fxList = fxList.Replace(",\"2019", ",{\"date\":\"2019");
+                    fxList = fxList.Replace("\"rates\":{", "\"rates\":[{\"date\":");
+                    fxList = fxList.Replace(":{\"USD", ",\"USD");
+                    fxList = Regex.Replace(fxList, "}},.*", "}]}");
+
+                    fx_api_json_Rates root = JsonConvert.DeserializeObject<fx_api_json_Rates>(fxList
+                        , new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
+                    fx_Rates = root.rates.ToList();
+                }
+
+                // write historical fx rates
+                writeHistoricalRates(fx_Rates , maxDateTime);
+
+            }
+        }
+
+        private List<fx_api_Rates> getHistoricalRates()
+        {
+            List<fx_api_Rates> historicalRates = new List<fx_api_Rates>();
+
+            DateTime dateStart = DateTime.Today;
+            dateStart = dateStart.AddDays(-45);
+
+            // get the historical rates sorted by date
+            historicalRates = dbContext.db_fx.Where(w => Convert.ToDateTime(w.date) > dateStart)
+                                                    .OrderBy(o => Convert.ToDateTime(o.date))
+                                                    .ToList();
+            return historicalRates;
+        }
+
+        private void writeHistoricalRates(List<fx_api_Rates> fx_Rates , string maxDateTime)
+        {
+            foreach(fx_api_Rates histRate in fx_Rates)
+            {
+                if (Convert.ToDateTime(maxDateTime) < Convert.ToDateTime(histRate.date))
+                {
+                    dbContext.db_fx.Add(histRate);
+                }
+            }
+            // commit the transaction
+            dbContext.SaveChanges();
+        }
+
+        private void fx_FormatCurrency(string currencySymbol)
+        {
+            foreach(fxSymbol f in CurrencyList.FxSymbols)
+            {
+                string str = $"{f.currencySymbol} {f.currencyName}";
+                if (f.currencyName == currencySymbol)
+                {
+                    f.userOption = $"<option value =\"{f.currencyName}\" selected>{str}</option>";
+                }
+                else
+                {
+                    f.userOption = $"<option value =\"{f.currencyName}\" >{str}</option>";
+                }
             }
         }
 
@@ -124,7 +237,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
         // -------------------------------------------------------------------
         // pricing data
         // -------------------------------------------------------------------
-        private List<iex_api_pricing> getPricing(string stockSymbol)
+        private List<iex_api_pricing> getPricing(string stockSymbol, string getFx)
         {
             string IEXTrading_API_PATH = iex_url + "stock/" + stockSymbol + "/batch?types=chart&range=3m";
             string priceList = "";
@@ -137,7 +250,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
             // run the query
             Prices = getHistoricalPrices(stockSymbol);
 
-            // check if in query results we have yesterday's data
+            // check if in query results we have today's data
             // if not then go get it from the API
             Boolean getPricingFromAPI = true;
             DateTime isToday =  DateTime.Today;
@@ -174,6 +287,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
                             NullValueHandling = NullValueHandling.Ignore
                         });
                     Prices = root.chart.ToList();
+                    
                 }
                 // need to append the symbol to the JSON data
                 foreach (iex_api_pricing Price in Prices)
@@ -185,7 +299,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
                 writeHistoricalPrices(Prices , maxDateTime);
             }
 
-            ViewBag.stockChart = iex_FormatPricing(stockSymbol, Prices);
+            ViewBag.stockChart = iex_FormatPricing(stockSymbol, getFx);
             return (Prices);
         }
 
@@ -199,6 +313,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
             List<iex_api_pricing> historicalPrices = new List<iex_api_pricing>();
             DateTime dateStart = DateTime.Today;
             dateStart = dateStart.AddDays(-45);
+            
             // get the historical prices sorted by date
             historicalPrices = dbContext.db_prices.Where(w => w.symbol.Equals(stockSymbol)
                                                                && Convert.ToDateTime(w.date) > dateStart)
@@ -224,18 +339,49 @@ namespace ISM6225_Assignment_3_Project.Controllers
         }
 
 
-        public iex_api_chart_Stock_Prices iex_FormatPricing(string stockSymbol, List<iex_api_pricing> Prices)
+        public iex_api_chart_Stock_Prices iex_FormatPricing(string stockSymbol
+                                                            , string getFx)
         {
             
             iex_api_Company iac = new iex_api_Company();
             iac = iex_api_companies.Where(stock => stock.symbol == stockSymbol).First();
 
+            List<iex_fx_chart_Stock_Prices> fxPrices = new List<iex_fx_chart_Stock_Prices>();
+
+            DateTime dateStart = DateTime.Today.AddDays(-45);
+
+            // get the historical prices sorted by date
+            fxPrices = dbContext.view_fx_pricing.Where(w=> w.symbol.Equals(stockSymbol)
+                                                    && Convert.ToDateTime(w.date) > dateStart)
+                                                    .OrderBy(o => Convert.ToDateTime(o.date))
+                                                    .ToList();
+            string pc = "";
+            switch(getFx)
+            {
+                case "EUR":
+                    pc = string.Join(",", fxPrices.Select(stock => stock.close_EUR));
+                    break;
+                case "JPY":
+                    pc = string.Join(",", fxPrices.Select(stock => stock.close_JPY));
+                    break;
+                case "GBP":
+                    pc = string.Join(",", fxPrices.Select(stock => stock.close_GBP));
+                    break;
+                case "USD":
+                    pc = string.Join(",", fxPrices.Select(stock => stock.close_USD));
+                    break;
+                default:
+                    pc = string.Join(",", fxPrices.Select(stock => stock.close));
+                    break;
+            }
+
             iex_api_chart_Stock_Prices chartData = new iex_api_chart_Stock_Prices
             {
                 Symbol = stockSymbol
                 , CompanyName = iac.name_chart
-                , PriceClosing = string.Join(",", Prices.Select(stock => stock.close))
-                , Dates = string.Join(",", Prices.Select(stock => stock.date))
+                , PriceClosing = pc
+                , Dates = string.Join(",", fxPrices.Select(stock=> stock.date))
+
             };
 
             return chartData;
@@ -246,10 +392,13 @@ namespace ISM6225_Assignment_3_Project.Controllers
         // -------------------------------------------------------------------
         public IActionResult Index()
         {
+            // format the currency selection
+            fx_FormatCurrency("USD");
+            ViewBag.CurrencyList = CurrencyList;
+
             // prep the HttpClient, set it to accept a JSON response 
             PrepHttpClient();
 
-            //ViewBag.dbSuccessComp = 0;
             List<iex_api_pricing> stockPrices = new List<iex_api_pricing>();
 
             // load the companies list from the database
@@ -274,8 +423,11 @@ namespace ISM6225_Assignment_3_Project.Controllers
 
         }
 
-        public IActionResult Stocks(string getSymbol)
+        public IActionResult Stocks(string getSymbol, string getFx)
         {
+            // format the currency selection
+            fx_FormatCurrency(getFx);
+            ViewBag.CurrencyList = CurrencyList;
             // prep the HttpClient, set it to accept a JSON response 
             PrepHttpClient();
 
@@ -293,6 +445,14 @@ namespace ISM6225_Assignment_3_Project.Controllers
                 iex_GetSymbols();
             }
 
+            // switch to get the currency
+            if (true)
+            {
+                PrepHttpClient();
+                getFxData();
+            }
+
+
             // format the drop down box 
             iex_FormatSymbols(getSymbol);
 
@@ -301,7 +461,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
             {
                 PrepHttpClient();
                 // go get the pricing of the speciefed symbol
-                stockPrices = getPricing(getSymbol);
+                stockPrices = getPricing(getSymbol ,getFx);
             }
 
             return View(iex_api_companies);

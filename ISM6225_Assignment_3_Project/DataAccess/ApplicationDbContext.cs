@@ -9,6 +9,8 @@ namespace ISM6225_Assignment_3_Project.DataAccess
 
         public DbSet<iex_api_Company> db_companies { get; set; }
         public DbSet<iex_api_pricing> db_prices { get; set; }
+        public DbSet<fx_api_Rates> db_fx { get; set; }
+        public DbQuery<iex_fx_chart_Stock_Prices> view_fx_pricing { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -42,7 +42,20 @@ create table dbo.db_prices
 	)
 )
 
+-- drop table dbo.db_fx;
+create table dbo.db_fx
+(
+	[date]					nvarchar(64)	not null
+	,[USD]					float(12)		NULL
+	,[GBP]					float(12)		NULL
+	,[EUR]					float(12)		NULL
+	,[JPY]					float(12)		NULL
 
+	CONSTRAINT db_fx_date PRIMARY KEY CLUSTERED
+	(
+		[date] ASC
+	)
+)
 
 
 
