@@ -39,7 +39,6 @@ namespace ISM6225_Assignment_3_Project
             // set up the datbase connection
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration["Data:AJM_Stocks:ConnectionString"]));
 
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

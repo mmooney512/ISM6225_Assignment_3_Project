@@ -1,3 +1,7 @@
+
+TRUNCATE TABLE		dbo.db_companies;
+
+
 INSERT INTO dbo.db_companies
 (Symbol , [name] )
 VALUES

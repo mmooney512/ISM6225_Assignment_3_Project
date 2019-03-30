@@ -93,12 +93,10 @@ namespace ISM6225_Assignment_3_Project.Controllers
         }
 
 
-        private void StockSymbolSearch(String s)
-        {
-            
-        }
-
-
+        /// <summary>
+        /// formats the stock symbols so they can be put in the drop down list
+        /// </summary>
+        /// <param name="stockSymbol"></param>
         private void iex_FormatSymbols(string stockSymbol)
         {
 
@@ -106,20 +104,22 @@ namespace ISM6225_Assignment_3_Project.Controllers
             for(int counter=0; counter < iex_api_companies.Count; counter++)
             {
                 string str = $"{iex_api_companies[counter].symbol} | {iex_api_companies[counter].name}";
-                iex_api_companies[counter].name = str +"\n";
+                //iex_api_companies[counter].name = str +"\n";
                 iex_api_companies[counter].name_chart = str;
 
                 if (stockSymbol == iex_api_companies[counter].symbol)
                 {
-                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" selected>{iex_api_companies[counter].name} </ option >";
+                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" selected>{str} </ option >";
                 }
                 else
                 {
-                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" >{iex_api_companies[counter].name} </ option >";
+                    str = $"<option value = \"{iex_api_companies[counter].symbol}\" >{str} </ option >";
                 }
                 iex_api_companies[counter].userOption = str;
             }
         }
+
+
 
         // -------------------------------------------------------------------
         // pricing data
@@ -128,31 +128,99 @@ namespace ISM6225_Assignment_3_Project.Controllers
         {
             string IEXTrading_API_PATH = iex_url + "stock/" + stockSymbol + "/batch?types=chart&range=3m";
             string priceList = "";
+            // will use to check what is the latest pricing data we have for the stock
+            string maxDateTime = "2001-01-01";
+            DateTime checkDateTime = new DateTime(2001, 1, 1);
             // hold pricing data
             List<iex_api_pricing> Prices = new List<iex_api_pricing>();
-            http_client.BaseAddress = new Uri(IEXTrading_API_PATH);
+            
+            // run the query
+            Prices = getHistoricalPrices(stockSymbol);
 
-            // get pricing data from the API
-            HttpResponseMessage http_response = http_client.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+            // check if in query results we have yesterday's data
+            // if not then go get it from the API
+            Boolean getPricingFromAPI = true;
+            DateTime isToday =  DateTime.Today;
 
-            if(http_response.IsSuccessStatusCode)
+            if (Prices != null && Prices.Count > 2)
             {
-                priceList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                maxDateTime = Prices.Last().date;
+                checkDateTime = Convert.ToDateTime(maxDateTime);
+                if (checkDateTime >= isToday)
+                {
+                    getPricingFromAPI = false;
+                }
             }
 
-            // if the priceList is not empty 
-            if(!priceList.Equals(""))
+            // if there was no data in the database
+            if (getPricingFromAPI == true)
             {
-                iex_symbol_prices root = JsonConvert.DeserializeObject<iex_symbol_prices>(priceList
-                    , new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    });
-                Prices = root.chart.ToList();
+                http_client.BaseAddress = new Uri(IEXTrading_API_PATH);
+
+                // get pricing data from the API
+                HttpResponseMessage http_response = http_client.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+                if (http_response.IsSuccessStatusCode)
+                {
+                    priceList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                }
+
+                // if the priceList is not empty 
+                if (!priceList.Equals(""))
+                {
+                    iex_symbol_prices root = JsonConvert.DeserializeObject<iex_symbol_prices>(priceList
+                        , new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
+                    Prices = root.chart.ToList();
+                }
+                // need to append the symbol to the JSON data
+                foreach (iex_api_pricing Price in Prices)
+                {
+                    Price.symbol = stockSymbol;
+                }
+
+                // save the data we just got
+                writeHistoricalPrices(Prices , maxDateTime);
             }
 
             ViewBag.stockChart = iex_FormatPricing(stockSymbol, Prices);
             return (Prices);
+        }
+
+        /// <summary>
+        /// query the data base and get the pricing for the last 45 days
+        /// </summary>
+        /// <param name="stockSymbol"></param>
+        /// <returns></returns>
+        private List<iex_api_pricing> getHistoricalPrices(string stockSymbol)
+        {
+            List<iex_api_pricing> historicalPrices = new List<iex_api_pricing>();
+            DateTime dateStart = DateTime.Today;
+            dateStart = dateStart.AddDays(-45);
+            // get the historical prices sorted by date
+            historicalPrices = dbContext.db_prices.Where(w => w.symbol.Equals(stockSymbol)
+                                                               && Convert.ToDateTime(w.date) > dateStart)
+                                                        .OrderBy(o => Convert.ToDateTime(o.date))
+                                                        .ToList();
+            return historicalPrices;
+        }
+
+        private void writeHistoricalPrices(List<iex_api_pricing> histPrices, string maxDateTime)
+        {
+
+            // write the data to the table
+            foreach (iex_api_pricing histPrice in histPrices)
+            {
+                if (Convert.ToDateTime(maxDateTime) < Convert.ToDateTime(histPrice.date))
+                {
+                    // insert the rows
+                    dbContext.db_prices.Add(histPrice);
+                }
+            }
+            // commit the transaction
+            dbContext.SaveChanges();
         }
 
 
@@ -176,7 +244,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
         // -------------------------------------------------------------------
         // web pages
         // -------------------------------------------------------------------
-        public IActionResult Index(string getSymbol)
+        public IActionResult Index()
         {
             // prep the HttpClient, set it to accept a JSON response 
             PrepHttpClient();
@@ -184,19 +252,26 @@ namespace ISM6225_Assignment_3_Project.Controllers
             //ViewBag.dbSuccessComp = 0;
             List<iex_api_pricing> stockPrices = new List<iex_api_pricing>();
 
+            // load the companies list from the database
+            iex_api_companies = dbContext.db_companies.ToList();
 
-            var db_all_Companies = dbContext.db_companies.ToList();
 
-            // rest API call to IEX; 
-            // store the values in a custom model iex_api_company
-            iex_GetSymbols();
+            // we should have our 12 stocks loaded in the database
+            if (iex_api_companies is null || iex_api_companies.Count < 12)
+            {
+                // rest API call to IEX; 
+                // store the values in a custom model iex_api_company
+                iex_GetSymbols();
+            }
 
-            // format the drop down box 
-            iex_FormatSymbols(getSymbol);
+
+            // format the drop down box; and if the ?get was passed
+            // mark as selected in the drop down box
+            iex_FormatSymbols("None");
 
             // return the companies info
             return View(iex_api_companies);
-            //return View();
+
         }
 
         public IActionResult Stocks(string getSymbol)
@@ -207,9 +282,16 @@ namespace ISM6225_Assignment_3_Project.Controllers
             //ViewBag.dbSuccessComp = 0;
             List<iex_api_pricing> stockPrices = new List<iex_api_pricing>();
 
-            // rest API call to IEX; 
-            // store the values in a custom model iex_api_company
-            iex_GetSymbols();
+            // load the companies list from the database
+            iex_api_companies = dbContext.db_companies.ToList();
+
+            // we should have our 12 stocks loaded in the database
+            if (iex_api_companies is null || iex_api_companies.Count < 12)
+            {
+                // rest API call to IEX; 
+                // store the values in a custom model iex_api_company
+                iex_GetSymbols();
+            }
 
             // format the drop down box 
             iex_FormatSymbols(getSymbol);
@@ -220,7 +302,6 @@ namespace ISM6225_Assignment_3_Project.Controllers
                 PrepHttpClient();
                 // go get the pricing of the speciefed symbol
                 stockPrices = getPricing(getSymbol);
-
             }
 
             return View(iex_api_companies);

@@ -9,5 +9,10 @@ namespace ISM6225_Assignment_3_Project.DataAccess
 
         public DbSet<iex_api_Company> db_companies { get; set; }
         public DbSet<iex_api_pricing> db_prices { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<iex_api_pricing>().HasKey(ck => new { ck.symbol, ck.date });
+        }
     }
 }

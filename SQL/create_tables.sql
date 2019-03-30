@@ -1,10 +1,11 @@
+drop table dbo.db_companies;
 
 create table	dbo.db_companies
 (
 	symbol			nvarchar(8)		NOT NULL
 	, [name]		nvarchar(1024)	NULL
 	, [date]		nvarchar(1024)	NULL
-	, isEnabled		nvarchar(1024)	NULL
+	, isEnabled		bit				NULL
 	, [type]		nvarchar(1024)	NULL
 	, [iexID]		nvarchar(1024)	NULL
 	, [userOption]	nvarchar(1024)	NULL
@@ -16,26 +17,32 @@ create table	dbo.db_companies
 	)
 )
 
+-- drop table dbo.db_prices;
+
 create table dbo.db_prices
 (
 	symbol					nvarchar(8)		NOT NULL
-	, EquityID				INT				NULL
-	, [date]				nvarchar(1024)	NULL
-	, [open]				numeric(12,4)	NULL
-	, [high]				numeric(12,4)	NULL
-	, [low]					numeric(12,4)	NULL
-	, [close]				numeric(12,4)	NULL
-	, [volume]				numeric(12,4)	NULL
-	, [unadjustedVolume]	numeric(12,4)	NULL
-	, [change]				numeric(12,4)	NULL
-	, [changePercent]		numeric(12,4)	NULL
-	, [vwap]				numeric(12,4)	NULL
+	, [date]				nvarchar(64)	NOT NULL
+	, [open]				float(12)		NULL
+	, [high]				float(12)		NULL
+	, [low]					float(12)		NULL
+	, [close]				float(12)		NULL
+	, [volume]				INT				NULL
+	, [unadjustedVolume]	INT				NULL
+	, [change]				float(12)		NULL
+	, [changePercent]		float(12)		NULL
+	, [vwap]				float(12)		NULL
 	, [label]				nvarchar(1024)	NULL
-	, [changeOverTime]		numeric(12,4)	NULL
-
+	, [changeOverTime]		float(12)		NULL
+	, EquityID				INT				NULL
+	
 	CONSTRAINT db_prices_symbol	PRIMARY KEY CLUSTERED
 	(
-		symbol ASC
+		symbol ASC, [date]
 	)
 )
+
+
+
+
 
