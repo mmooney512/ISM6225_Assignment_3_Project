@@ -89,97 +89,35 @@ function DrawCharts(stock_symbol, stock_name, labels_dates, data_prices)
     }
 }
 
-function PageReloaded()
+function DrawXeChart(xe_exchange_rate, labels_dates, data_rates)
 {
     try
     {
-        new Chart(document.getElementById("chart_one"),
+        new Chart(document.getElementById("chart_xe"),
             {
-                type: 'bar',
-                data: {
-                    labels: ["2018", "2019"],
-                    datasets: [
-                        {
-                            label: "Amount (USD)",
-                            backgroundColor: ["#3e95cd", "#3cba9f"],
-                            data: [1153, 1180]
-                        }
-                    ]
+                type: 'line',
+                data:
+                {
+                    labels: labels_dates.split(","),
+                    datasets: [{
+                        data: data_rates.split(","),
+                        label: xe_exchange_rate,
+                        borderColor: "#3cba9f",
+                        fill: false
+                    }]
                 },
                 options: {
-                    legend: { display: false },
-                    title: {
+                    title:
+                    {
                         display: true,
-                        text: 'Americans who plan to go on vacation will spend on average, per person:'
-                    },
-                    scales: {
-                        yAxes: [{
-                            display: true,
-                            ticks: {
-                                suggestedMin: 0,
-                                beginAtZero: true
-                            }
-                        }]
+                        text: "Exchange Rate" + xe_exchange_rate
                     }
                 }
-            });
 
-        new Chart(document.getElementById("chart_two"),
-            {
-                type: 'horizontalBar',
-                data: {
-                    labels: ["Cash, Check, or Savings", "Credit Card (to pay in full)", "Reward Points", "Credit Card (to pay monthly)", "A Tax Refund", "Timeshare/Vacation Plan", "Other", "Not Sure"],
-                    datasets: [
-                        {
-                            label: "Percentage (%)",
-                            backgroundColor: ["#FF9933", "#FF9933", "#FF9933", "#FF9933", "#FF9933", "#FF9933", "#FF9933", "#FF9933" ],
-                            data: [71,33,19,18,13,7,2,5]
-                        }
-                    ]
-                },
-                options: {
-                    legend: { display: false },
-                    title: {
-                        display: true,
-                        text: 'How are people paying for their vacation'
-                    },
-                    scales: {
-                        xAxes: [{
-                            display: true,
-                            ticks: {
-                                suggestedMin: 0,
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }
-            });
-
-        new Chart(document.getElementById("chart_three"),
-            {
-                type: 'doughnut',
-                data: {
-                    labels: ["No Summer Plans", "Summer Plans"],
-                    datasets: [
-                        {
-                            label: "Percent (Americans)",
-                            backgroundColor: ["#FFFF99", "#8e5ea2"],
-                            data: [41, 59]
-                        }
-                    ]
-                },
-                options: {
-                    legend: { display: true },
-                    title: {
-                        display: true,
-                        text: 'Americans who plan to go on summer vacation:'
-                    }
-                 
-                }
-            });
+            }
+        );
     }
-    catch (e)
-    {
+    catch (e) {
         ExceptionHandler(e);
     }
 }

@@ -388,7 +388,79 @@ namespace ISM6225_Assignment_3_Project.Controllers
         }
 
         // -------------------------------------------------------------------
-        // web pages
+        // XE data
+        // -------------------------------------------------------------------
+
+        public fx_api_chart_xe_rates fx_FormatRates(string getXE)
+        {
+            List<fx_api_fx_rates> fxPrices = new List<fx_api_fx_rates>();
+
+            DateTime dateStart = DateTime.Today.AddDays(-45);
+
+            fxPrices = dbContext.view_fx_rates.Where(w => Convert.ToDateTime(w.date) > dateStart)
+                                                    .OrderBy(o => Convert.ToDateTime(o.date)).ToList();
+            string fx = "";
+
+            switch(getXE)
+            {
+                case "GBP-USD":
+                    fx = string.Join(",", fxPrices.Select(xe => xe.GBP_USD));
+                    break;
+                case "USD-GBP":
+                    fx = string.Join(",", fxPrices.Select(xe => xe.USD_GBP));
+                    break;
+                case "EUR-USD":
+                    fx = string.Join(",", fxPrices.Select(xe => xe.EUR_USD));
+                    break;
+                case "USD-EUR":
+                    fx = string.Join(",", fxPrices.Select(xe => xe.USD_EUR));
+                    break;
+                case "JPY-USD":
+                    fx = string.Join(",", fxPrices.Select(xe => xe.JPY_USD));
+                    break;
+                case "USD-JPY":
+                    fx = string.Join(",", fxPrices.Select(xe => xe.USD_JPY));
+                    break;
+                default:
+                    fx = string.Join(",", fxPrices.Select(xe => xe.GBP_USD));
+                    break;
+            }
+
+            fx_api_chart_xe_rates chartData = new fx_api_chart_xe_rates
+            {
+                ExchangeRate = getXE
+                , ClosingRate = fx
+                , Dates = string.Join(",", fxPrices.Select(xe => xe.date))
+            };
+            return (chartData);
+        }
+
+        private fx_XeModel fx_FormatXe(string getXE)
+        {
+            fx_XeModel ExchangeList = new fx_XeModel();
+
+            foreach(xeSymbol xe in ExchangeList.XeSymbols)
+            {
+                string str = $"{xe.userOption}";
+                if(xe.userOption == getXE)
+                {
+                    xe.userOption = $"<option value =\"{str}\" selected>{str}</option>";
+                }
+                else
+                {
+                    xe.userOption = $"<option value =\"{str}\" >{str}</option>";
+                }
+            }
+            return (ExchangeList);
+        }
+
+
+        // -------------------------------------------------------------------
+        // WEB PAGE
+        // -------------------------------------------------------------------
+
+        // -------------------------------------------------------------------
+        // INDEX
         // -------------------------------------------------------------------
         public IActionResult Index()
         {
@@ -423,8 +495,23 @@ namespace ISM6225_Assignment_3_Project.Controllers
 
         }
 
+        // -------------------------------------------------------------------
+        // STOCKS
+        // -------------------------------------------------------------------
         public IActionResult Stocks(string getSymbol, string getFx)
         {
+            // set defaults
+            if(getSymbol is null)
+            {
+                getSymbol = "HA";
+            }
+            
+            // set the default value for currency
+            if (getFx is null)
+            {
+                getFx = "USD";
+            }
+
             // format the currency selection
             fx_FormatCurrency(getFx);
             ViewBag.CurrencyList = CurrencyList;
@@ -445,13 +532,9 @@ namespace ISM6225_Assignment_3_Project.Controllers
                 iex_GetSymbols();
             }
 
-            // switch to get the currency
-            if (true)
-            {
-                PrepHttpClient();
-                getFxData();
-            }
-
+            // get the currency information
+            PrepHttpClient();
+            getFxData();
 
             // format the drop down box 
             iex_FormatSymbols(getSymbol);
@@ -466,6 +549,25 @@ namespace ISM6225_Assignment_3_Project.Controllers
 
             return View(iex_api_companies);
         }
+
+        // -------------------------------------------------------------------
+        // TWO_FEX
+        // -------------------------------------------------------------------
+        public IActionResult two_fex(string getXE)
+        {
+            // set the default value for currency
+            if (getXE is null)
+            {
+                getXE = "USD-GBP";
+            }
+            // get the xe information
+
+            ViewBag.xeList = fx_FormatXe(getXE);
+            ViewBag.xeChart = fx_FormatRates(getXE);
+            
+            return View();
+        }
+
 
         public IActionResult About()
         {

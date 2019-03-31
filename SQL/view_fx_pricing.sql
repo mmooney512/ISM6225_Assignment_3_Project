@@ -15,3 +15,19 @@ FROM		dbo.db_prices
 );
 
 			
+
+CREATE VIEW		view_fx_rates AS
+(
+SELECT			db_fx.[date]	
+				, db_fx.USD / db_fx.GBP		AS GBP_USD
+				, db_fx.GBP / db_fx.USD 	AS USD_GBP
+
+				, db_fx.USD / db_fx.EUR		AS EUR_USD
+				, db_fx.EUR / db_fx.USD 	AS USD_EUR
+
+				, db_fx.USD / db_fx.JPY		AS JPY_USD
+				, db_fx.JPY / db_fx.USD 	AS USD_JPY
+
+FROM			dbo.db_fx
+
+);

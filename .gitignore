@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /SQL/check_tables.sql
+/ISM6225_Assignment_3_Project/appsettings.json

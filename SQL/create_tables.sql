@@ -58,4 +58,27 @@ create table dbo.db_fx
 )
 
 
+create table dbo.db_news
+(
+	symbol					nvarchar(8)		NOT NULL
+	,[date]					nvarchar(64)	not null
+	,[headline]				nvarchar(4000)	 null
+	,[url]					nvarchar(4000)	 null
 
+	CONSTRAINT db_news_symbol	PRIMARY KEY CLUSTERED
+	(
+		symbol ASC, [date]
+	)
+)
+
+
+create table dbo.db_logo
+(
+	symbol					nvarchar(8)		NOT NULL
+	, logo_image			varbinary(max)	not null 	
+	
+	CONSTRAINT db_logo_symbol	PRIMARY KEY CLUSTERED
+	(
+		symbol ASC
+	)			
+)

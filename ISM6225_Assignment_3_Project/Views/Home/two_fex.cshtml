@@ -1,0 +1,82 @@
+﻿@model IEnumerable<ISM6225_Assignment_3_Project.Models.iex_api_Company>
+<!-- Top Section
+-------------------------------------------------------------------------- -->
+<div class="top_section new_section">
+    <div class="container">
+        <div class="row">
+            
+            <!-- Stock Picker
+            -------------------------------------------------------------- -->
+            <div class="six columns stockpicker">
+                stock picker
+            </div>
+            <!-- Currency Picker
+            -------------------------------------------------------------- -->
+            <div class="six columns fxpicker">
+                Show Prices in Selected Currency
+            </div>
+            <div class="six columns fxpicker">
+                <form asp-controller="Home" asp-action="two_fex" method="get">
+                    <select name="getXE">
+                        @foreach (var Xe in ViewBag.xeList.XeSymbols)
+                        {
+                            @Html.Raw(Xe.userOption)
+                        }
+                    </select>
+                    <input type="submit" value="select xe" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Middle Section
+-------------------------------------------------------------------------- -->
+<div class="middle_section new_section">
+    <div class="container">
+        <div class="row">
+            <div class="eight columns">
+                FX Chart
+
+                <br />
+                <canvas id="chart_xe" width="420" height="450"></canvas>
+            </div>
+            <div class="four columns">
+                News Ticker
+                                
+                
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Bottom Section
+-------------------------------------------------------------------------- -->
+<div class="bottom_section new_section">
+    <div class="container">
+        <div class="row">
+            <div class="eight columns">
+                Tech Indicator
+                <canvas id="chart_indicator" width="420" height="450"></canvas>
+            </div>
+            <div class="four columns">
+                Explain the tech indicator
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function ()
+    {
+        DrawXeChart("@ViewBag.xeChart.ExchangeRate"
+                    ,"@ViewBag.xeChart.Dates"
+                    ,"@ViewBag.xeChart.ClosingRate"
+                    );
+    }, false);
+</script>
+
