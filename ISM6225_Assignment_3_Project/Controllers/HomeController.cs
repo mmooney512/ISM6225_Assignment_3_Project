@@ -32,6 +32,8 @@ namespace ISM6225_Assignment_3_Project.Controllers
         // iex API Variables
         const string iex_url = "https://api.iextrading.com/1.0/";
         List<iex_api_Company> iex_api_companies = null;
+        List<iex_api_logo> iex_api_logos = null;
+        List<iex_api_new> iex_api_news = null;
 
         // list of symbols to look up
         List<string> SymbolList = new List<string>
@@ -51,7 +53,43 @@ namespace ISM6225_Assignment_3_Project.Controllers
             ,"HTZ"  //  Hertz Car Rental
             ,"CAR"  //  Avis Budget
         };
+        //list of logos to look up
 
+        List<string> LogoList = new List<string>
+        {
+           "AAL"   //  American Airlines
+            ,"DAL"  //  Delta Airlines
+            ,"HA"   //  Hawaiian Airlines
+            ,"LUV"  //  Southwest Airlines
+            ,"UAL"  //  United Airlines
+
+            ,"HLT"  //  Hilton Hotels
+            ,"H"    //  Hyatt Hotels
+            ,"HST"  //  Host Hotel & Resorts
+            ,"MAR"  //  Marriott International
+            ,"WH"   //  Wyndham
+
+            ,"HTZ"  //  Hertz Car Rental
+            ,"CAR"  //  Avis Budget
+        };
+        //list of news to look up
+        List<string> NewList = new List<string>
+        {
+           "AAL"   //  American Airlines
+            ,"DAL"  //  Delta Airlines
+            ,"HA"   //  Hawaiian Airlines
+            ,"LUV"  //  Southwest Airlines
+            ,"UAL"  //  United Airlines
+
+            ,"HLT"  //  Hilton Hotels
+            ,"H"    //  Hyatt Hotels
+            ,"HST"  //  Host Hotel & Resorts
+            ,"MAR"  //  Marriott International
+            ,"WH"   //  Wyndham
+
+            ,"HTZ"  //  Hertz Car Rental
+            ,"CAR"  //  Avis Budget
+        };
         // list of currencies to look up
         fxModel CurrencyList = new fxModel();
 
@@ -232,8 +270,62 @@ namespace ISM6225_Assignment_3_Project.Controllers
             }
         }
 
+        // -------------------------------------------------------------------
+        // logo data
+        // -------------------------------------------------------------------
+        private bool predefinedQuery(iex_api_logo l)
+        {
+            return (LogoList.Contains(l.url));
+        }
+        private void iex_GetLogos(string symbol)
+        {
+            string IEXTrading_API_PATH = iex_url + "stock/" + symbol + "/logo";
+            string logoList = "";
 
+            // connect to the IEXTrading API and retrieve information
+            HttpResponseMessage http_response = http_client.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
 
+            // read the Json objects in the API response
+            if (http_response.IsSuccessStatusCode)
+            {
+                logoList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
+            // now, parse the Json strings as C# objects
+            if (!logoList.Equals(""))
+            {
+                // https://stackoverflow.com/a/46280739
+                logoList = logoList.Substring(8, logoList.Length - 10);
+                ViewBag.logo = logoList;
+            }
+        }
+        // -------------------------------------------------------------------
+        // news data
+        // -------------------------------------------------------------------
+        private void iex_GetNews(string symbol)
+        {
+            string IEXTrading_API_PATH = iex_url + "stock/" + symbol + "/news/last/5";
+            string newList = "";
+
+            // connect to the IEXTrading API and retrieve information
+            HttpResponseMessage http_response = http_client.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+            // read the Json objects in the API response
+            if (http_response.IsSuccessStatusCode)
+            {
+                newList = http_response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
+            // now, parse the Json strings as C# objects
+            if (!newList.Equals(""))
+            {
+                // https://stackoverflow.com/a/46280739
+                iex_api_news = JsonConvert.DeserializeObject<List<iex_api_new>>(newList);
+                ViewBag.news = iex_api_news;
+
+            }
+
+        }
         // -------------------------------------------------------------------
         // pricing data
         // -------------------------------------------------------------------
@@ -539,12 +631,24 @@ namespace ISM6225_Assignment_3_Project.Controllers
             // format the drop down box 
             iex_FormatSymbols(getSymbol);
 
+            // store the values in a custom model iex_api_logo
+            iex_GetLogos(getSymbol);
+
+            // store the values in a custom model iex_api_news
+            iex_GetNews(getSymbol);
+
             // switch if the symbol was posted
             if (getSymbol != null)
             {
                 PrepHttpClient();
                 // go get the pricing of the speciefed symbol
                 stockPrices = getPricing(getSymbol ,getFx);
+
+                // go get the logo of the specified symbol
+                iex_GetLogos(getSymbol);
+
+                // go get the logo of the specified symbol
+                iex_GetNews(getSymbol);
             }
 
             return View(iex_api_companies);

@@ -47,4 +47,14 @@ namespace ISM6225_Assignment_3_Project.Models
     {
         public iex_api_pricing[] chart { get; set; }
     }
+
+    public class iex_api_logo
+    {
+        public string url { get; set; }
+    }
+    public class iex_api_new
+    {
+        public string headline { get; set; }
+        public string url { get; set; }
+    }
 }

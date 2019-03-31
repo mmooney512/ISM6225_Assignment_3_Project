@@ -52,8 +52,13 @@
             </div>
             <div class="four columns">
                 News Ticker
-                                
-                
+                News Ticker
+                <br />
+                @foreach (var article in ViewBag.news)
+                {
+                    @Html.Raw(article.headline)
+                    <a href="@Html.Raw(article.url)">Link to article</a>
+                }
             </div>
 
         </div>
@@ -71,7 +76,9 @@
                 <canvas id="chart_indicator" width="420" height="450"></canvas>
             </div>
             <div class="four columns">
-                Explain the tech indicator
+                Company Logo
+                <br />
+                <img src=@ViewBag.logo />
             </div>
         </div>
     </div>
