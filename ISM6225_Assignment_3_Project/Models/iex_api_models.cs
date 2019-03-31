@@ -56,6 +56,5 @@ namespace ISM6225_Assignment_3_Project.Models
     {
         public string headline { get; set; }
         public string url { get; set; }
-        public string image { get; set; }
     }
 }
