@@ -4,11 +4,12 @@
 <div class="top_section new_section">
     <div class="container">
         <div class="row">
-            <!-- Stock Picker
-            -------------------------------------------------------------- -->
-            <div class="six columns stockpicker">
-                <div class="dropdown">
-                    <form asp-controller="Home" asp-action="Index" method="get">
+            <form asp-controller="Home" asp-action="Stocks" method="get">
+                <!-- Stock Picker
+                -------------------------------------------------------------- -->
+                <div class="six columns stockpicker">
+                    <div class="dropdown">
+
                         <select name="getSymbol">
                             @foreach (var stock in Model)
                             {
@@ -16,20 +17,23 @@
                             }
                         </select>
                         <input type="submit" value="select stock" />
-                    </form>
+
+                    </div>
                 </div>
-            </div>
-            <!-- Currency Picker
-            -------------------------------------------------------------- -->
-            <div class="six columns fxpicker">
-                Show Prices in Selected Currency
-            </div>
-            <div class="six columns fxpicker">
-                <a asp-area="" asp-controller="Home" asp-action="Index">$ USD</a>
-                <a asp-area="" asp-controller="Home" asp-action="Index">£ GBP</a>
-                <a asp-area="" asp-controller="Home" asp-action="Index">€ EUR</a>
-                <a asp-area="" asp-controller="Home" asp-action="Index">¥ JPY</a>
-            </div>
+                <!-- Currency Picker
+                -------------------------------------------------------------- -->
+                <div class="six columns fxpicker">
+                    Show Prices in Selected Currency
+                </div>
+                <div class="six columns fxpicker">
+                    <select name="getFx">
+                        @foreach (var Currency in ViewBag.CurrencyList.FxSymbols)
+                        {
+                            @Html.Raw(Currency.userOption)
+                        }
+                    </select>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -48,13 +52,8 @@
             </div>
             <div class="four columns">
                 News Ticker
-                <br />
-                @foreach (var article in ViewBag.news)
-                {
-                    @Html.Raw(article.headline)
-                    <a href="@Html.Raw(article.url)">Link to article</a>
-                }
-
+                                
+                
             </div>
 
         </div>
@@ -68,12 +67,11 @@
     <div class="container">
         <div class="row">
             <div class="eight columns">
-                Company Logo
+                Tech Indicator
                 <canvas id="chart_indicator" width="420" height="450"></canvas>
             </div>
             <div class="four columns">
                 Explain the tech indicator
-                <img src = @ViewBag.logo />
             </div>
         </div>
     </div>

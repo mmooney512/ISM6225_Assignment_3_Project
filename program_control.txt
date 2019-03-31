@@ -1,0 +1,23 @@
+path
+program.cs
+main
+
+CreateWebHostBuilder
+
+HomeController.cs
+HomeController			// creates the dbContext
+
+Index(string getSymbol)
+	PrepHttpClient();			// creates the http_client talk to remote websites
+	dbContext.db_companies.ToList();	// query database table db_companies
+	if query was null
+		iex_GetSymbols()		// query remote website
+	iex_FormatSymbols(getSymbol)		// formats the line items in iex_api_companies.userOption
+						// for the drop down box
+	return View(iex_api_companies)
+	
+Index.cshtml
+	model == iex_api_company
+	foreach 
+		stock.userOption
+
