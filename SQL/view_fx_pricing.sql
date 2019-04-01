@@ -15,7 +15,7 @@ FROM		dbo.db_prices
 );
 
 			
-
+--drop view		view_fx_rates;
 CREATE VIEW		view_fx_rates AS
 (
 SELECT			db_fx.[date]	
@@ -31,3 +31,6 @@ SELECT			db_fx.[date]
 FROM			dbo.db_fx
 
 );
+select *
+from view_fx_rates
+;

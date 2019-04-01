@@ -110,7 +110,7 @@ function DrawXeChart(xe_exchange_rate, labels_dates, data_rates)
                     title:
                     {
                         display: true,
-                        text: "Exchange Rate" + xe_exchange_rate
+                        text: "Exchange Rate: " + xe_exchange_rate
                     }
                 }
 

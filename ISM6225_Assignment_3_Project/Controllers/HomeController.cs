@@ -672,6 +672,27 @@ namespace ISM6225_Assignment_3_Project.Controllers
             return View();
         }
 
+        // -------------------------------------------------------------------
+        // THREE_TECHIND
+        // -------------------------------------------------------------------
+        public IActionResult Three_TechInd()
+        {
+            ViewData["Message"] = "Stock/Financial News.";
+
+            return View();
+        }
+
+
+        // -------------------------------------------------------------------
+        // FOUR_STOCKTICKER
+        // -------------------------------------------------------------------
+        public IActionResult Four_StockTicker()
+        {
+            ViewData["Message"] = "How To Read A Stock Ticker";
+
+            return View();
+        }
+
 
         public IActionResult About()
         {
@@ -680,17 +701,15 @@ namespace ISM6225_Assignment_3_Project.Controllers
             return View();
         }
 
-        public IActionResult Contact()
+        public IActionResult News()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Stock/Financial News.";
 
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

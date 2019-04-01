@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Stock Ticker 101";
+}
+<p></p>
+<p></p>
+<p></p>
+<div class="container bg-light">
+    <h2>@ViewData["Title"]</h2>
+    <p></p>
+    <h3>@ViewData["Message"]</h3>
+    <p></p>
+    <p></p>
+    <p>
+        You've seen them on business programs or financial news networks:
+        a flashing series of baffling letters, arrows and numbers scrolling along
+        the bottom of your TV screen. While many people simply block out the ticker
+        tape, aka the ticker, others use it to stay on top of market sentiment and
+        track the activity of certain stocks. What exactly is that cryptic script
+        reeling by? It obviously tells us something about stocks and the stock markets,
+        but how does one read a stock ticker tape and use it to his or her advantage?.
+    </p>
+
+    <div><p> </p></div>
+    <div><p> </p></div>
+    <div class="mx-auto" style="width: 200px;">
+        <img src="~/images/ticker.gif" />
+    </div>
+    <div>
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th scope="row">Ticker Symbol</th>
+                    <td>The unique characters used to identify the company.</td>
+
+                </tr>
+                <tr>
+                    <th scope="row">Shares Traded</th>
+                    <td>The volume for the trade being quoted. Abbreviations are K = 1,000, M = 1 million and B = 1 billion</td>
+
+                </tr>
+                <tr>
+                    <th scope="row">Price Traded</th>
+                    <td>The price per share for the particular trade (the last bid price).</td>
+
+                </tr>
+                <tr>
+                    <th scope="row">Change Direction</th>
+                    <td>Shows whether the stock is trading higher or lower than the previous day's closing price.</td>
+
+                </tr>
+                <tr>
+                    <th scope="row">Change Amount</th>
+                    <td>The difference in price from the previous day's close.</td>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
