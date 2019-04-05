@@ -595,7 +595,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
             // set defaults
             if(getSymbol is null)
             {
-                getSymbol = "HA";
+                getSymbol = "CAR";
             }
             
             // set the default value for currency
@@ -632,7 +632,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
             iex_FormatSymbols(getSymbol);
 
             // store the values in a custom model iex_api_logo
-            iex_GetLogos(getSymbol);
+            //iex_GetLogos(getSymbol);
 
             // store the values in a custom model iex_api_news
             iex_GetNews(getSymbol);
@@ -645,7 +645,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
                 stockPrices = getPricing(getSymbol ,getFx);
 
                 // go get the logo of the specified symbol
-                iex_GetLogos(getSymbol);
+                //iex_GetLogos(getSymbol);
 
                 // go get the logo of the specified symbol
                 iex_GetNews(getSymbol);
@@ -692,7 +692,15 @@ namespace ISM6225_Assignment_3_Project.Controllers
 
             return View();
         }
+        // -------------------------------------------------------------------
+        // TRAVELFIN Blog
+        // -------------------------------------------------------------------
+        public IActionResult TravelFin()
+        {
+            ViewData["Message"] = " Travelers, Digital Nomads and aspiring ones. Hear me out.";
 
+            return View();
+        }
 
         public IActionResult About()
         {
@@ -701,7 +709,7 @@ namespace ISM6225_Assignment_3_Project.Controllers
             return View();
         }
 
-        public IActionResult News()
+        public IActionResult three_news()
         {
             ViewData["Message"] = "Stock/Financial News.";
 

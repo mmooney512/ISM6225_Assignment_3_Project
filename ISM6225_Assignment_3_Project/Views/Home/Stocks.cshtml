@@ -1,97 +1,177 @@
 ﻿@model IEnumerable<ISM6225_Assignment_3_Project.Models.iex_api_Company>
 @{
-    ViewData["Title"] = "Stocks Page";
+    ViewData["Title"] = "Stock Chart 101";
 }
 <!-- Top Section
 -------------------------------------------------------------------------- -->
-<div class="row">
-    <div class="col-lg-12">
-        <h2 class="whitney">Stock Charts</h2>
-        <p>
-            Select the name of a stock and the currency which you want to see
-            prices in.
-        </p>
-        <p>
+<p></p>
+<p></p>
+<p></p>
 
-        </p>
-        <p>
+<div class="container bg-light">
+    <div class="row">
+        <div class="col-lg-12">
+            <p>
 
-        </p>
-    </div>
-</div>
+            </p>
+            <h2 class="whitney">Stock Chart</h2>
+            <p><h4>What's in a stock chart?</h4></p>
+            <p>
+                <h6>The look of a stock table</h6>
+            <p>
+                Stock tables have a standard look about them. To dissect the stock table, take a look
+                at the top line first. This is where you will find the name of the stock
+                and its ticker symbol. The ticker will be the same no matter what investment tool
+                you are reading.
+            </p>
 
+            <h6>A quick look inside the table</h6>
+            <p>
+                Once you get into the body of the stock table, you will find the most important
+                data about the performance of the stock. You’ll see a graph with two lines – showing the p
+                rice trends over a selected period of time.
+            </p>
 
-<div class="row">
-    <form asp-controller="Home" asp-action="Stocks" method="get">
-        <!-- Stock Picker
-        -------------------------------------------------------------- -->
-        <div class="col-md-6">
-            <div class="container">
-                <h4>Select Stock</h4>
-                <div class="dropdown">
-                    <select name="getSymbol">
-                        @foreach (var stock in Model)
-                        {
-                            @Html.Raw(stock.userOption)
-                        }
-                    </select>
-                    <input type="submit" value="Select Stock" />
-                </div>
-            </div>
+           
+            <h6>Ticker and market</h6>
+            <p>
+                Knowing what is on the stock table is only a small piece of the puzzle. The important
+                piece to the puzzle is understanding how to use it. The name and ticker symbol and
+                market are the easiest to explain. This is how you identify the company on and
+                off the market.
+            </p>
+            <h6>The price & price graph</h6>
+
+            <p>
+                The price graph shows the price trends over time, depending on the source.
+                For most charts, you can choose between looking at 1 day, 5 day, 1 month, 1 year,
+                5 year, and max (lifetime) price trends. This will help you see if
+                the stock is trending up or down, and at what rate. <a href="https://www.learn-stock-options-trading.com/stock-charts.html" class="alert-link text-info">Click Here to Learn More</a>
+            </p>
+            
+            <p>
+
+            </p>
+            <p>
+
+            </p>
         </div>
-        <!-- Currency Picker
-        -------------------------------------------------------------- -->
-        <div class="col-md-6">
-            <div class="container">
-                <h4>Select Currency</h4>
-                <div class="dropdown">
-                    <select name="getFx">
-                        @foreach (var Currency in ViewBag.CurrencyList.FxSymbols)
-                        {
-                            @Html.Raw(Currency.userOption)
-                        }
-                    </select>
+    </div>
+    <div class="container">
+    <p>
+        <h5>
+        Select the name of a stock and the currency which you want to see
+        prices.
+    </h5>
+    </p>
+    </div>
+    <div class="card border-light container">
+        <form asp-controller="Home" asp-action="Stocks" method="get">
+            <div class="row">
+
+
+                <div class="col-4">
+
+
+                    <!-- Stock Picker
+                    -------------------------------------------------------------- -->
+
+                    <div class="container">
+                        <h4>Select Stock</h4>
+                        <div class="dropdown">
+                            <select name="getSymbol">
+                                @foreach (var stock in Model)
+                                {
+                                    @Html.Raw(stock.userOption)
+                                }
+                            </select>
+
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <!-- Currency Picker
+                -------------------------------------------------------------- -->
+                <div class="col-4">
+                    <div class="container">
+                        <h4>Select Currency</h4>
+                        <div class="dropdown">
+                            <select name="getFx">
+                                @foreach (var Currency in ViewBag.CurrencyList.FxSymbols)
+                                {
+                                    @Html.Raw(Currency.userOption)
+                                }
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 text-center">
+                    <input type="submit" class="btn btn-primary" value="View" />
+                </div>
+                </div>
+
+        </form>
+    </div>
+
+
+    <div>
+        <p></p>
+        <p></p>
+    </div>
+
+
+    <!-- Chart Section
+    -------------------------------------------------------------------------- -->
+    <div class="container">
+
+        <p></p>
+        <!-- logo
+        -------------------------------------------------------------- -->
+        <div class="col-md-12 text-center">
+            <p></p>
+            <img class="img-rounded" src=@ViewBag.logo />
         </div>
-    </form>
-</div>
+
+        <!-- chart
+        -------------------------------------------------------------- -->
+        <div class="col-md-12">
+            <canvas id="chart_stock"></canvas>
+        </div>
 
 
-<!-- Chart Section
--------------------------------------------------------------------------- -->
-<div class="row">
-    <!-- logo
-    -------------------------------------------------------------- -->
-    <div class="col-md-12 text-center">
-        <img class="img-rounded" src=@ViewBag.logo />
+
+    </div>
+    <div class="container">
+        <p></p>
+        <p></p>
+        <!-- news
+        -------------------------------------------------------------- -->
+        <div class="col-md-12">
+            <h4>Corporate News</h4>
+            <p class="list-group">
+                @foreach (var article in ViewBag.news)
+                {
+
+
+                    <ul>
+                        <li class="list-group-item list-group-item-action">
+                            <h5 class="font-weight-bold">@Html.Raw(article.headline)</h5>
+                            <a href="@Html.Raw(article.url)" class="alert-link text-info">Link to article</a>
+                        </li>
+                    </ul>
+
+                }
+
+            </p>
+
+
+
+        </div>
     </div>
 
-    <!-- chart
-    -------------------------------------------------------------- -->
-    <div class="col-md-7">
-        <canvas id="chart_stock" width="420" height="450"></canvas>
-    </div>
-
-    <!-- news
-    -------------------------------------------------------------- -->
-    <div class="col-md-5">
-        <h3>Corporate News</h3>
-        <p>
-            @foreach (var article in ViewBag.news)
-            {
-                <h4>@Html.Raw(article.headline)</h4>
-                <a href="@Html.Raw(article.url)">Link to article</a>
-            }
-        </p>
-    </div>
-
-</div>
-
-
-<!-- JavaScript for the Stock Chart
--------------------------------------------------------------------------- -->
-<script type="text/javascript">
+    <!-- JavaScript for the Stock Chart
+    -------------------------------------------------------------------------- -->
+    <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function ()
     {
         DrawCharts("@ViewBag.stockChart.Symbol"
@@ -100,4 +180,6 @@
                     ,"@ViewBag.stockChart.PriceClosing"
                     );
     }, false);
-</script>
+    </script>
+
+</div>

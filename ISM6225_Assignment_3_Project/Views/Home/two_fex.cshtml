@@ -1,57 +1,98 @@
 ﻿@{
     ViewData["Title"] = "Exchange Rate";
 }
+<p></p>
+<p></p>
+<p></p>
 <!-- Top Section
 -------------------------------------------------------------------------- -->
-<div class="row">
-    <div class="col-lg-12">
-        <h2 class="whitney">Exchange Rates</h2>
-        <p>
-            Select the name of a exchange rate you want to see
-        </p>
-        <p>
-
-        </p>
-        <p>
-
-        </p>
-    </div>
-</div>
+<div class="container bg-light">
 
 
-<div class="row">
-    <!-- Currency Picker
-    -------------------------------------------------------------- -->
-    <div class="col-md-12">
-        <div class="container">
-            <form asp-controller="Home" asp-action="two_fex" method="get">
-                <select name="getXE">
-                    @foreach (var Xe in ViewBag.xeList.XeSymbols)
-                    {
-                        @Html.Raw(Xe.userOption)
-                    }
-                </select>
-                <input type="submit" value="Select Exchange Rate" />
-            </form>
+    <div class="row">
+        <div class="col-lg-12">
+            <p>
+
+            </p>
+            
+            <h2 class="whitney">Exchange Rates</h2>
+            
+            <p>
+                <h4>How to Read Currency Exchange Rates</h4>
+            </p>
+            <p>
+
+            </p>
         </div>
     </div>
-</div>
 
+    <div>
 
-<!-- Chart Section
--------------------------------------------------------------------------- -->
-<div class="row">
-    <div class="container">
-        <!-- chart
-        -------------------------------------------------------------- -->
-        <canvas id="chart_xe" width="800" height="550"></canvas>
+        <p>
+            The value of a currency is determined by its comparison to another currency. 
+            The first currency of a pair is called the "base currency", and the second 
+            currency is called the "terms currency" (or "quote currency"). The currency 
+            pair indicates how much of the terms currency is needed to purchase one unit 
+            of the base currency.
+        </p>
+        <p>
+            The value of a currency is determined by its comparison to another currency. 
+        The first currency of a pair is called the "base currency", and the second currency 
+        is called the "terms currency" (or "quote currency"). The currency pair indicates how 
+        much of the terms currency is needed to purchase one unit of the base currency.
+        </p>
+        <p>
+            Most currencies, including the Canadian dollar, are quoted directly against the 
+        US dollar. A "direct quote" always indicates the amount of foreign currency required 
+        to buy or sell one US dollar. Other common direct currencies include USDJPY (Japanese yen), 
+        USDCHF (Swiss franc), and USDMXN (Mexican peso).
+        </p>
     </div>
-</div>
+    <div class="row">
+        <!-- Currency Picker
+        -------------------------------------------------------------- -->
+        <div class="col-lg-12">
+            <div class="container">
+                <p>
+                    <h5>
+                        Select the name of a exchange rate you want to see
+                    </h5>
+                </p>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="container">
+                <div class="card border-light container">
+                    <form asp-controller="Home" asp-action="two_fex" method="get">
+                        <select name="getXE">
+                            @foreach (var Xe in ViewBag.xeList.XeSymbols)
+                            {
+                                @Html.Raw(Xe.userOption)
+                            }
+                        </select>
+                        <input type="submit" class="btn btn-primary" value="Select Exchange Rate" />
+                    </form>
+                </div>
+                
+            </div>
+    </div>
 
 
-<!-- JavaScript for the Stock Chart
--------------------------------------------------------------------------- -->
-<script type="text/javascript">
+    <!-- Chart Section
+    -------------------------------------------------------------------------- -->
+        <div class="col-md-12">
+            <div class="container">
+                <!-- chart
+        -------------------------------------------------------------- -->
+                <canvas id="chart_xe"></canvas>
+            </div>
+           
+        </div>
+
+
+    <!-- JavaScript for the Stock Chart
+    -------------------------------------------------------------------------- -->
+    <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function ()
     {
         DrawXeChart("@ViewBag.xeChart.ExchangeRate"
@@ -59,4 +100,5 @@
                     ,"@ViewBag.xeChart.ClosingRate"
                     );
     }, false);
-</script>
+    </script>
+</div>

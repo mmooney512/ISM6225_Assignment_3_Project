@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Exchange Rate";
+}
+<p></p>
+<p></p>
+<p></p>
+<!-- Top Section
+-------------------------------------------------------------------------- -->
+<div class="container bg-light">
+
+
+    <div class="row">
+        <div class="col-lg-12">
+            <p>
+
+            </p>
+
+            <h2 class="whitney">Exchange Rates</h2>
+
+            <p>
+
+            </p>
+            <p>
+
+            </p>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <!-- Currency Picker
+        -------------------------------------------------------------- -->
+        <div class="col-lg-12">
+            <p>
+                Select the name of a exchange rate you want to see
+            </p>
+        </div>
+        <div class="col-md-12">
+            <div class="container">
+                <form asp-controller="Home" asp-action="two_fex" method="get">
+                    <select name="getXE">
+                        @foreach (var Xe in ViewBag.xeList.XeSymbols)
+                        {
+                            @Html.Raw(Xe.userOption)
+                        }
+                    </select>
+                    <input type="submit" value="Select Exchange Rate" />
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container">
+            <!-- chart
+            -------------------------------------------------------------- -->
+            <canvas id="chart_xe" width="800" height="550"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart Section
+    -------------------------------------------------------------------------- -->
+    <div class="row">
+        <div class="container">
+            <!-- chart
+            -------------------------------------------------------------- -->
+            <canvas id="chart_xe" width="800" height="550"></canvas>
+        </div>
+    </div>
+
+
+    <!-- JavaScript for the Stock Chart
+    -------------------------------------------------------------------------- -->
+    <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function ()
+    {
+        DrawXeChart("@ViewBag.xeChart.ExchangeRate"
+                    ,"@ViewBag.xeChart.Dates"
+                    ,"@ViewBag.xeChart.ClosingRate"
+                    );
+    }, false);
+    </script>
+</div>
